@@ -1,0 +1,3 @@
+from .base_handlers import register_base_commands
+from .search_handlers import register_search_handlers
+from .wishlist_handlers import register_wishlist_handlers
