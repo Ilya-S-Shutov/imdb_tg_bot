@@ -6,7 +6,6 @@ from pydantic import SecretStr, Field
 from pydantic_settings import BaseSettings
 
 dotenv.load_dotenv('.env')
-dotenv.load_dotenv('.env-endpoints')
 
 
 class BotSettings(BaseSettings):
@@ -19,9 +18,9 @@ class ApiSettings(BaseSettings):
 
 
 class UrlSetting(BaseSettings):
-    hostname: str = Field(os.getenv("HOSTNAME"))
-    search: str = Field(os.getenv("SEARCH"))
-    overview: str = Field(os.getenv("OVERVIEW"))
+    hostname: str = 'https://imdb8.p.rapidapi.com'
+    search: str = '/v2/search?'
+    overview: str = '/title/v2/get-overview'
 
 
 class Settings(BaseSettings):

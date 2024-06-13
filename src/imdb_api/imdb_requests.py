@@ -76,9 +76,9 @@ class ImdbRequests:
 
         if response:
             movies_list = []
-            with open('test_api.json', 'w') as f:
-                import json
-                json.dump(response, f, indent=4)
+            # with open('test_api.json', 'w') as f:
+            #     import json
+            #     json.dump(response, f, indent=4)
             for movie_data_raw in response['data']['mainSearch']['edges']:
                 movie_data_raw = movie_data_raw['node']['entity']
 

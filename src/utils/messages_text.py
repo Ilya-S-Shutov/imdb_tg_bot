@@ -1,5 +1,6 @@
 COMMAND_LIST = ("\"/search\" — find TV Serials and Movies.\n"
-                "\"/wishlist\" — look at your current wishlist.")
+                "\"/wishlist\" — look at your current wishlist.\n"
+                "\"/info\" — get information about this bot.")
 
 START = ("Hello! I am exam-project-bot.\n"
          "I can show you information about TV Serials and Movies,"
@@ -8,7 +9,7 @@ START = ("Hello! I am exam-project-bot.\n"
          "Please, use the keyboard below to choose one of following actions:\n"
          f"{COMMAND_LIST}")
 
-HELP = ("You can use the keyboard at the bottom of the screen or one of following commands:\n"
+HELP = ("You can use the Menu Button, the keyboard at the bottom of the screen or one of following commands:\n"
         f"{COMMAND_LIST}")
 
 # Texts for search

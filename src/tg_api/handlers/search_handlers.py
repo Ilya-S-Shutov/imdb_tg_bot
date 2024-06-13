@@ -2,7 +2,7 @@ from telebot import TeleBot
 from telebot.types import Message, CallbackQuery, ReplyKeyboardRemove
 
 from database import CRUD_instance
-from .base_handlers import get_chat_id, clean_handler, send_message
+from .base_handlers import get_chat_id, clean_handler, send_message, help_handler
 from imdb_api import ImdbRequests
 from ..keyboards.search_keyboards import *
 from ..keyboards.common_keyboards import main_commands_kb, exit_kb
@@ -23,8 +23,8 @@ def search_handler(mess: Message, bot: TeleBot) -> None:
 def get_search_term(mess: Message, bot: TeleBot) -> None:
     if mess.text:
         with bot.retrieve_data(mess.from_user.id, mess.chat.id) as data:
-            send_message(mess.from_user.id, WAIT_SEARCH, bot)
             data['search_term'] = mess.text
+        send_message(mess.from_user.id, WAIT_SEARCH, bot)
     request_search_query(mess, bot)
 
 
@@ -78,8 +78,7 @@ def stop_search(mess: Message | CallbackQuery, bot: TeleBot) -> None:
     chat_id = get_chat_id(mess)
     clean_handler(mess, bot)
     bot.answer_callback_query(mess.id, STOP_SEARCHING)
-    send_message(mess.from_user.id, HELP, bot, reply_markup=main_commands_kb())
-    bot.set_state(chat_id, MainStates.main)
+    help_handler(mess, bot)
 
 
 @handlers_logging
