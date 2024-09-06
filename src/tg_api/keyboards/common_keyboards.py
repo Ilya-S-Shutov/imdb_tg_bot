@@ -1,7 +1,14 @@
+"""
+Клавиатуры общего назначения.
+"""
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 def main_commands_kb() -> ReplyKeyboardMarkup:
+    """
+    Клавиатура со списком команд.
+    :return:
+    """
     kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
     info_btn = KeyboardButton('/info')
     search_btn = KeyboardButton('/search')
@@ -11,6 +18,10 @@ def main_commands_kb() -> ReplyKeyboardMarkup:
 
 
 def exit_kb() -> ReplyKeyboardMarkup:
+    """
+    Клавиатура с кнопкой выхода.
+    :return:
+    """
     kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
     exit_btn = KeyboardButton('/exit')
 

@@ -1,3 +1,7 @@
+"""
+Обработчики для работы с списком желаемого.
+"""
+
 from telebot import TeleBot
 from telebot.types import Message, CallbackQuery, ReplyKeyboardRemove
 
@@ -12,6 +16,13 @@ from utils.messages_text import *
 
 @handlers_logging
 def wishlist_handler(mess: Message | CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за начало работы пользователя со списком желаемого.
+    Выводит список желаемого с функциональными кнопками.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     clean_handler(mess, bot)
     chat_id = get_chat_id(mess)
     movies_list = CRUD_instance.get_users_wishlist(chat_id)
@@ -30,6 +41,12 @@ def wishlist_handler(mess: Message | CallbackQuery, bot: TeleBot) -> None:
 
 @handlers_logging
 def show_movie_details(call: CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за демонстрацию подробностей о выбранном фильме.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     clean_handler(call, bot)
     chat_id = get_chat_id(call)
     index = int(call.data.split()[1])
@@ -52,6 +69,12 @@ def show_movie_details(call: CallbackQuery, bot: TeleBot) -> None:
 
 @handlers_logging
 def remove_user_to_movie_link(call: CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за удаление фильма из списка желаемого.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     chat_id = get_chat_id(call)
     index = int(call.data.split()[1])
     with bot.retrieve_data(chat_id) as data:
@@ -64,6 +87,12 @@ def remove_user_to_movie_link(call: CallbackQuery, bot: TeleBot) -> None:
 
 @handlers_logging
 def stop_wishlist(mess: Message | CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за завершение работы со списком желаемого.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     chat_id = get_chat_id(mess)
     clean_handler(mess, bot)
     # send_message(chat_id, CLOSED, bot, reply_markup=main_commands_kb())
@@ -72,6 +101,12 @@ def stop_wishlist(mess: Message | CallbackQuery, bot: TeleBot) -> None:
 
 @none_handler_exception_logging
 def register_wishlist_handlers(bot: TeleBot) -> None:
+    """
+    Регистрация необходимых обработчиков.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     bot.register_message_handler(wishlist_handler, commands=['wishlist'], pass_bot=True)
     bot.register_callback_query_handler(
         wishlist_handler,

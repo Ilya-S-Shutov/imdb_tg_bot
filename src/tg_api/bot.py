@@ -10,6 +10,11 @@ from utils.logging_conf import none_handler_exception_logging, logger
 
 @none_handler_exception_logging
 def create_bot(token: SecretStr) -> TeleBot:
+    """
+    Инициализация всех структурных компонентов и настроек бота.
+    :param token: Токен бота.
+    :return: Объект сформированного бота.
+    """
     storage = StateMemoryStorage()
     apihelper.ENABLE_MIDDLEWARE = True
 

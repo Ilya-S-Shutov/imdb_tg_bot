@@ -1,3 +1,7 @@
+"""
+Обработчики для работы с функцией поиска фильмов и формирования подборок.
+"""
+
 from telebot import TeleBot
 from telebot.types import Message, CallbackQuery, ReplyKeyboardRemove
 
@@ -13,6 +17,12 @@ from utils.messages_text import *
 
 @handlers_logging
 def search_handler(mess: Message, bot: TeleBot) -> None:
+    """
+    Обработчик команды инициализации поиска фильмов.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     clean_handler(mess, bot)
     bot.set_state(mess.from_user.id, SearchStates.request_search)
 
@@ -20,16 +30,28 @@ def search_handler(mess: Message, bot: TeleBot) -> None:
 
 
 @handlers_logging
-def get_search_term(mess: Message, bot: TeleBot) -> None:
+def get_search_term_handler(mess: Message, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за получение и фиксацию строки поиска.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     if mess.text:
         with bot.retrieve_data(mess.from_user.id, mess.chat.id) as data:
             data['search_term'] = mess.text
         send_message(mess.from_user.id, WAIT_SEARCH, bot)
-    request_search_query(mess, bot)
+    request_search_query_handler(mess, bot)
 
 
 @handlers_logging
-def request_search_query(mess: Message, bot: TeleBot) -> None:
+def request_search_query_handler(mess: Message, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за формирование и отправку запроса поиска, на основе полученной от пользователя строки.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     with bot.retrieve_data(mess.from_user.id, mess.chat.id) as data:
         data['found_movies_list'] = ImdbRequests.search_movies(mess.text)
         if not data['found_movies_list']:
@@ -38,11 +60,17 @@ def request_search_query(mess: Message, bot: TeleBot) -> None:
             return
         data['current_movie_index'] = 0
     bot.set_state(mess.from_user.id, SearchStates.show_found_results)
-    show_movie_list_info(mess, bot)
+    show_movie_list_info_handler(mess, bot)
 
 
 @handlers_logging
-def show_movie_list_info(mess: Message | CallbackQuery, bot: TeleBot) -> None:
+def show_movie_list_info_handler(mess: Message | CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за пошаговый вывод информации о фильмах.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     chat_id = get_chat_id(mess)
 
     with bot.retrieve_data(chat_id) as data:
@@ -74,7 +102,13 @@ def show_movie_list_info(mess: Message | CallbackQuery, bot: TeleBot) -> None:
 
 
 @handlers_logging
-def stop_search(mess: Message | CallbackQuery, bot: TeleBot) -> None:
+def stop_search_handler(mess: Message | CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий за остановку пошаговой выдачи фильмов и возврат к основному состоянию.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     chat_id = get_chat_id(mess)
     clean_handler(mess, bot)
     bot.answer_callback_query(mess.id, STOP_SEARCHING)
@@ -82,7 +116,13 @@ def stop_search(mess: Message | CallbackQuery, bot: TeleBot) -> None:
 
 
 @handlers_logging
-def add_to_wishlist(call: CallbackQuery, bot: TeleBot) -> None:
+def add_to_wishlist_handler(call: CallbackQuery, bot: TeleBot) -> None:
+    """
+    Обработчик, отвечающий добавление фильма в список желаний пользователя.
+    :param mess: Объект сообщения (Message) или коллбэка (CallbackQuery).
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     index = int(call.data.split()[1])
     chat_id = get_chat_id(call)
     with bot.retrieve_data(chat_id) as data:
@@ -102,27 +142,32 @@ def add_to_wishlist(call: CallbackQuery, bot: TeleBot) -> None:
 
 @none_handler_exception_logging
 def register_search_handlers(bot: TeleBot) -> None:
+    """
+    Регистрация необходимых обработчиков.
+    :param bot: Объект бота-исполнителя.
+    :return:
+    """
     bot.register_message_handler(search_handler, commands=['search'], pass_bot=True)
-    bot.register_message_handler(get_search_term, state=[SearchStates.request_search], pass_bot=True)
+    bot.register_message_handler(get_search_term_handler, state=[SearchStates.request_search], pass_bot=True)
 
-    bot.register_message_handler(stop_search, commands=['next'], state=[SearchStates.show_found_results], pass_bot=True)
+    bot.register_message_handler(stop_search_handler, commands=['next'], state=[SearchStates.show_found_results], pass_bot=True)
     bot.register_callback_query_handler(
-        show_movie_list_info,
+        show_movie_list_info_handler,
         func=lambda call: call.data == 'next',
         state=[SearchStates.show_found_results],
         pass_bot=True
     )
 
-    bot.register_message_handler(stop_search, commands=['exit'], state=[SearchStates.show_found_results], pass_bot=True)
+    bot.register_message_handler(stop_search_handler, commands=['exit'], state=[SearchStates.show_found_results], pass_bot=True)
     bot.register_callback_query_handler(
-        stop_search,
+        stop_search_handler,
         func=lambda call: call.data == 'exit',
         state=[SearchStates.show_found_results],
         pass_bot=True
     )
 
     bot.register_callback_query_handler(
-        add_to_wishlist,
+        add_to_wishlist_handler,
         func=lambda call: call.data.split()[0] == 'add',
         pass_bot=True
     )

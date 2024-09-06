@@ -6,14 +6,23 @@ from utils.logging_conf import none_handler_exception_logging
 
 
 class ImdbRequests:
+    """
+    Интерфейс взаимодействия с IMDb.
+    """
     @classmethod
     @none_handler_exception_logging
     def _get_response(cls,
                       method: str,
                       url: str,
                       # headers: dict | None = None,
-                      params: dict | None = None) -> dict|None:
-
+                      params: dict | None = None) -> dict | None:
+        """
+        Общий метод отправки запроса.
+        :param method: Метод запроса.
+        :param url: URL.
+        :param params: Парметры запроса.
+        :return: Содержимое ответа в формате json, преобразованного в словарь. None, если ответ не содержит json.
+        """
         headers = {
             "x-rapidapi-key": settings.api.api_key.get_secret_value(),
             "x-rapidapi-host": settings.api.api_host.get_secret_value()
@@ -30,6 +39,11 @@ class ImdbRequests:
     @classmethod
     @none_handler_exception_logging
     def get_overview(cls, title_id: str) -> tuple[float, str] | None:
+        """
+        Получение дополнительной информации о фильме.
+        :param title_id: Id фильма в системе IMDb.
+        :return: Кортеж с рейтингом и кратким описанием фильма.
+        """
         params = {
             "tconst": str(title_id),
             "country": "US",
@@ -57,7 +71,14 @@ class ImdbRequests:
 
     @classmethod
     @none_handler_exception_logging
-    def search_movies(cls, search_term: str, types: tuple = ('TV', 'MOVIE'), amount: int = 5) -> list|None | None:
+    def search_movies(cls, search_term: str, types: tuple = ('TV', 'MOVIE'), amount: int = 5) -> list | None | None:
+        """
+        Реализация поиска фильмов и инофрмации о них по запросу. Формирование списка из данных о фильмах.
+        :param search_term: Строка для поиска.
+        :param types: Тип искомых произведений.
+        :param amount: Максимальное кол-во фильмов в подборке.
+        :return: Список с данными фильмов.
+        """
         params = {
             "searchTerm": search_term,
             "type": ','.join(types),

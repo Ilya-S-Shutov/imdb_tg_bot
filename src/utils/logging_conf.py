@@ -1,6 +1,7 @@
 import logging
 import traceback
 from functools import wraps
+from collections.abc import Iterable
 
 # from telebot import TeleBot
 from telebot.types import Message, CallbackQuery
@@ -18,6 +19,10 @@ logger.setLevel(logging.INFO)
 
 
 def none_handler_exception_logging(func):
+    """
+    Вывод в лог информации о начале/окончании работы декорируемой функции, а также вывод сообщений об ошибках, если
+    таковые возникают.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         _send_log_debug("Starting: %s", func.__name__)
@@ -30,7 +35,12 @@ def none_handler_exception_logging(func):
     return wrapper
 
 
-def _find_in_args(args):
+def _find_in_args(args: Iterable) -> Message | None:
+    """
+    Определение типа аргумента: сообщение или коллбэк.
+    :param args: Кортеж объектов, полученный основной функцией. Предполагается, что это строки, сообщения или коллбэки.
+    :return: Объект сообщения, если получилось извлечь.
+    """
     for arg in args:
         if isinstance(arg, Message):
             return arg
@@ -38,7 +48,10 @@ def _find_in_args(args):
             return arg.message
 
 
-def _get_message_info(*args, **kwargs):
+def _get_message_info(*args, **kwargs) -> (str | int, str):
+    """
+    Извлечение из сообщений идентификатора чата и текста сообщения, если есть.
+    """
     message_args = _find_in_args(args)
     if message_args is not None:
         return message_args.chat.id, message_args.text
@@ -52,6 +65,11 @@ def _get_message_info(*args, **kwargs):
 
 def _send_log_debug(mess: str,
                     *mess_args, **mess_kwargs) -> None:
+    """
+    Отправка сообщений уровня DEBUG в консольный и текстовый лог.
+    :param mess: Текст шаблона сообщения.
+    :return:
+    """
     logging.debug(
         mess,
         *mess_args,
@@ -66,6 +84,11 @@ def _send_log_debug(mess: str,
 
 def _send_log_error(mess: str,
                    *mess_args, **mess_kwargs) -> None:
+    """
+    Отправка сообщений уровня ERROR в консольный и текстовый лог.
+    :param mess: Текст шаблона сообщения.
+    :return:
+    """
     logging.error(
         mess,
         *mess_args,
@@ -79,6 +102,9 @@ def _send_log_error(mess: str,
 
 
 def handlers_logging(func):
+    """
+    Логирование хода работы обработчиков.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         chat_id, text = _get_message_info(*args, **kwargs)
